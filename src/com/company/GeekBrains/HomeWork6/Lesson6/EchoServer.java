@@ -18,17 +18,26 @@ public class EchoServer {
             DataInputStream inputStream = new DataInputStream(clientSocket.getInputStream());
             DataOutputStream outputStream = new DataOutputStream(clientSocket.getOutputStream());
 
-            while (true){
-                String message = inputStream.readUTF();
-                if (message.startsWith(EchoConstants.STOP_WORD)){
-                    break;
-                }
-                outputStream.writeUTF("Echo: " + message);
-            }
-
+            processClientConnection(inputStream, outputStream);
         } catch (IOException ex) {
             System.err.println("Connection error on PORT number " + EchoConstants.PORT);
             ex.printStackTrace();
+        }
+    }
+
+    private static void processClientConnection(DataInputStream inputStream, DataOutputStream outputStream) {
+        while (true) {
+            try {
+                String message = inputStream.readUTF();
+                if (message.startsWith(EchoConstants.STOP_WORD)) {
+                    break;
+                }
+                outputStream.writeUTF("Echo: " + message);
+            } catch (IOException ex) {
+                System.out.println("Connection closed");
+                break;
+            }
+
         }
     }
 }
