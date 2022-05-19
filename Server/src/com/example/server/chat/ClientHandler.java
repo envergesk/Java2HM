@@ -22,6 +22,7 @@ public class ClientHandler {
     public void handle() throws IOException {
         inputStream = new DataInputStream(clientSocket.getInputStream());
         outputStream = new DataOutputStream(clientSocket.getOutputStream());
+
         new Thread(() -> {
             try {
                 authenticate();

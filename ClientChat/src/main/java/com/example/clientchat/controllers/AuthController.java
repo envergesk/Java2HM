@@ -25,7 +25,6 @@ public class AuthController {
     public Button authButton;
 
     private ClientChat clientChat;
-    private Network network;
 
     @FXML
     public void executeAuth(ActionEvent actionEvent) {
@@ -40,7 +39,7 @@ public class AuthController {
         String authCommandMessage = String.format("%s %s %s", AUTH_COMMAND, login, password);
 
         try {
-            network.sendMessage(authCommandMessage);
+            Network.getINSTANCE().sendMessage(authCommandMessage);
         } catch (IOException e) {
             clientChat.showErrorDialog("Data transfer error");
             e.printStackTrace();
@@ -51,21 +50,25 @@ public class AuthController {
         this.clientChat = clientChat;
     }
 
-    public void setNetwork(Network network) {
-        this.network = network;
-        network.waitMessages(new Consumer<String>() {
+    public void initializeMessageHandler() {
+        Network.getINSTANCE().waitMessages(new Consumer<String>() {
             @Override
             public void accept(String message) {
                 if (message.startsWith(AUTH_OK_COMMAND)){
                     Thread.currentThread().interrupt();
-
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
                             clientChat.getAuthStage().close();
                         }
                     });
-
+                } else {
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            clientChat.showErrorDialog("Current log/pass user not found");
+                        }
+                    });
                 }
             }
         });

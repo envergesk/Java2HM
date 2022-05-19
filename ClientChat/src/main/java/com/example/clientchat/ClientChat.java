@@ -18,7 +18,6 @@ import java.io.IOException;
 public class ClientChat extends Application {
 
     private Stage stage;
-    private Network network;
     private Stage authStage;
 
     @Override
@@ -53,27 +52,26 @@ public class ClientChat extends Application {
 
         AuthController authController = authLoader.getController();
         authController.setClientChat(this);
-        authController.setNetwork(network);
+        authController.initializeMessageHandler();
 
         authStage.showAndWait();
-        controller.setNetwork(network);
+        controller.initializeMessageHandler();
     }
 
     private void connectToServer(ClientController clientController) {
-        network = new Network();
-        boolean resultConnectedToServer = network.connect();
+        boolean resultConnectedToServer = Network.getINSTANCE().connect();
         if (!resultConnectedToServer) {
             String errorMessage = "Connection failed";
             showErrorDialog(errorMessage);
             System.err.println(errorMessage);
         }
 
-        clientController.setNetwork(network);
+        //       clientController.setNetwork(network);
         clientController.setApplication(this);
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent windowEvent) {
-                    network.close();
+                    Network.getINSTANCE().close();
                 }
         });
     }

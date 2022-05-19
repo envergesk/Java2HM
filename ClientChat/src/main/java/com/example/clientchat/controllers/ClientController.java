@@ -26,42 +26,50 @@ public class ClientController {
     @FXML
     public ListView userList;
 
-    private Network network;
     private ClientChat application;
 
     public void sendMessage() {
         String message = messageTextArea.getText();
 
-        chatTextArea.appendText(DateFormat.getInstance().format(new Date()) + " ");
-        chatTextArea.appendText(System.lineSeparator());
-        messageTextArea.requestFocus();
-        appendMessageToChat(message);
+        if (message.isEmpty()) {
+            messageTextArea.clear();
+            return;
+        }
+
+        String sender = null;
+        if (!userList.getSelectionModel().isEmpty()){
+            sender = userList.getSelectionModel().getSelectedItem().toString();
+        }
 
         try {
-            network.sendMessage(message);
+            message = sender != null ? String.format(": ", sender, message) : message;
+            Network.getINSTANCE().sendMessage(message);
         } catch (IOException e) {
             application.showErrorDialog("Data error");
         }
+        appendMessageToChat("Me", message);
+
     }
 
-    public void appendMessageToChat(String message) {
-        if (!message.isEmpty()){
-            chatTextArea.appendText(message);
+    public void appendMessageToChat(String sender, String message) {
+        chatTextArea.appendText(DateFormat.getInstance().format(new Date()) + " ");
+        chatTextArea.appendText(System.lineSeparator());
+        messageTextArea.requestFocus();
+        if (sender != null) {
+            chatTextArea.appendText(sender + ": ");
             chatTextArea.appendText(System.lineSeparator());
-            messageTextArea.clear();
         }
+        chatTextArea.appendText(message);
+        chatTextArea.appendText(System.lineSeparator());
+        messageTextArea.clear();
+        messageTextArea.requestFocus();
     }
 
-    public Network getNetwork() {
-        return network;
-    }
-
-    public void setNetwork(Network network) {
-        this.network = network;
-        network.waitMessages(new Consumer<String>() {
+    public void initializeMessageHandler() {
+        Network.getINSTANCE().waitMessages(new Consumer<String>() {
             @Override
             public void accept(String message) {
-                appendMessageToChat(message);
+                appendMessageToChat("Server", message);
             }
         });
     }
