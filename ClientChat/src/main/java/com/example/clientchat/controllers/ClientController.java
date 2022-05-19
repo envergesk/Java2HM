@@ -1,5 +1,7 @@
-package com.example.clientchat;
+package com.example.clientchat.controllers;
 
+import com.example.clientchat.ClientChat;
+import com.example.clientchat.Network;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;

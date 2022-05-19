@@ -1,5 +1,7 @@
 package com.example.server.chat;
 
+import com.example.server.chat.auth.AuthService;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,11 +12,13 @@ import java.util.List;
 
 public class MyServer {
 
+    private AuthService authService;
     private final List<ClientHandler> clients = new ArrayList<>();
 
     public void start(int port) {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server started");
+            authService = new AuthService();
             while (true) {
                 waitAndProcessClientConnection(serverSocket);
             }
@@ -51,4 +55,7 @@ public class MyServer {
         clients.remove(clientHandler);
     }
 
+    public AuthService getAuthService() {
+        return authService;
+    }
 }

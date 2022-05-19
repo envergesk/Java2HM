@@ -54,6 +54,9 @@ public class Network {
             public void run() {
                 while (true) {
                     try {
+                        if (Thread.currentThread().isInterrupted()){
+                            return;
+                        }
                         String message = socketInput.readUTF();
                         messageHandler.accept(message);
                     } catch (IOException e) {

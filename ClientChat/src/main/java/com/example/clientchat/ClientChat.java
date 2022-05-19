@@ -1,28 +1,29 @@
 package com.example.clientchat;
 
+import com.example.clientchat.controllers.AuthController;
+import com.example.clientchat.controllers.ClientController;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import javax.xml.crypto.Data;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class ClientChat extends Application {
 
     private Stage stage;
+    private Network network;
+    private Stage authStage;
 
     @Override
-    public void start(Stage stage) throws IOException {
-        this.stage = stage;
+    public void start(Stage primaryStage) throws IOException {
+        this.stage = primaryStage;
 
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(ClientChat.class.getResource("hello-view.fxml"));
@@ -36,28 +37,45 @@ public class ClientChat extends Application {
         ClientController controller = fxmlLoader.getController();
         controller.userList.getItems().addAll("user1", "user2");
 
-        stage.show();
+        primaryStage.show();
 
         connectToServer(controller);
+
+        FXMLLoader authLoader = new FXMLLoader();
+        authLoader.setLocation(ClientChat.class.getResource("authDialog.fxml"));
+        AnchorPane authDialogPane = authLoader.load();
+
+        authStage = new Stage();
+        authStage.initOwner(primaryStage);
+        authStage.initModality(Modality.WINDOW_MODAL);
+
+        authStage.setScene(new Scene(authDialogPane));
+
+        AuthController authController = authLoader.getController();
+        authController.setClientChat(this);
+        authController.setNetwork(network);
+
+        authStage.showAndWait();
+        controller.setNetwork(network);
     }
 
     private void connectToServer(ClientController clientController) {
-            Network network = new Network();
-            boolean resultConnectedToServer = network.connect();
-            if (!resultConnectedToServer) {
-                String errorMessage = "Connection failed";
-                showErrorDialog(errorMessage);
-                System.err.println(errorMessage);
-            }
+        network = new Network();
+        boolean resultConnectedToServer = network.connect();
+        if (!resultConnectedToServer) {
+            String errorMessage = "Connection failed";
+            showErrorDialog(errorMessage);
+            System.err.println(errorMessage);
+        }
 
-            clientController.setNetwork(network);
-            clientController.setApplication(this);
-            stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-                @Override
-                public void handle(WindowEvent windowEvent) {
+        clientController.setNetwork(network);
+        clientController.setApplication(this);
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent windowEvent) {
                     network.close();
                 }
-            });
+        });
     }
 
     public void showErrorDialog(String message) {
@@ -70,5 +88,9 @@ public class ClientChat extends Application {
 
     public static void main(String[] args) {
         launch();
+    }
+
+    public Stage getAuthStage() {
+        return authStage;
     }
 }
