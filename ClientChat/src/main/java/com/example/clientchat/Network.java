@@ -7,6 +7,8 @@ import java.net.Socket;
 import java.util.function.Consumer;
 
 public class Network {
+
+    private static Network INSTANCE;
     public static final String SERVER_HOST = "localhost";
     public static final int SERVER_PORT = 8189;
 
@@ -17,13 +19,20 @@ public class Network {
     private DataInputStream socketInput;
     private DataOutputStream socketOutput;
 
-    public Network(String host, int port) {
+    private Network(String host, int port) {
         this.port = port;
         this.host = host;
     }
 
-    public Network() {
+    private Network() {
         this(SERVER_HOST, SERVER_PORT);
+    }
+
+    public static Network getINSTANCE() {
+        if (INSTANCE == null) {
+            INSTANCE = new Network();
+        }
+        return INSTANCE;
     }
 
     public boolean connect() {
@@ -31,6 +40,7 @@ public class Network {
             socket = new Socket(host, port);
             socketInput = new DataInputStream(socket.getInputStream());
             socketOutput = new DataOutputStream(socket.getOutputStream());
+
             return true;
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -42,7 +52,7 @@ public class Network {
         try {
             socketOutput.writeUTF(message);
         } catch (IOException e) {
-            System.err.println("Send message to server failed");
+            System.err.println("Не удалось отправить сообщение на сервер");
             e.printStackTrace();
             throw e;
         }
@@ -54,10 +64,13 @@ public class Network {
             public void run() {
                 while (true) {
                     try {
+                        if (Thread.currentThread().isInterrupted()){
+                            return;
+                        }
                         String message = socketInput.readUTF();
                         messageHandler.accept(message);
                     } catch (IOException e) {
-                        System.err.println("Receive message from server failed");
+                        System.err.println("Не удалось получить сообщение от сервера");
                         e.printStackTrace();
                         break;
                     }
@@ -72,7 +85,7 @@ public class Network {
         try {
             socket.close();
         } catch (IOException e) {
-            System.err.println("Socket close failed");
+            System.err.println("Не удалось закрыть сетевое соединение");
             e.printStackTrace();
         }
     }
