@@ -17,68 +17,78 @@ import java.io.IOException;
 
 public class ClientChat extends Application {
 
-    private Stage stage;
+    private Stage chatStage;
     private Stage authStage;
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        this.stage = primaryStage;
+        this.chatStage = primaryStage;
 
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(ClientChat.class.getResource("hello-view.fxml"));
-
-        Parent root = fxmlLoader.load();
-
-        Scene scene = new Scene(root);
-        this.stage.setTitle("ClientChat");
-        this.stage.setScene(scene);
-
-        ClientController controller = fxmlLoader.getController();
-        controller.userList.getItems().addAll("user1", "user2");
-
-        primaryStage.show();
-
+        ClientController controller = createChatDialog(primaryStage);
         connectToServer(controller);
+        createAuthDialog(primaryStage);
 
+        controller.initializeMessageHandler();
+    }
+
+    private void createAuthDialog(Stage primaryStage) throws IOException {
         FXMLLoader authLoader = new FXMLLoader();
         authLoader.setLocation(ClientChat.class.getResource("authDialog.fxml"));
-        AnchorPane authDialogPane = authLoader.load();
+        AnchorPane authDialogPanel = authLoader.load();
 
         authStage = new Stage();
         authStage.initOwner(primaryStage);
         authStage.initModality(Modality.WINDOW_MODAL);
 
-        authStage.setScene(new Scene(authDialogPane));
+        authStage.setScene(new Scene(authDialogPanel));
 
         AuthController authController = authLoader.getController();
         authController.setClientChat(this);
         authController.initializeMessageHandler();
 
         authStage.showAndWait();
-        controller.initializeMessageHandler();
     }
+
+    private ClientController createChatDialog(Stage primaryStage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(ClientChat.class.getResource("hello-view.fxml"));
+
+        Parent root = fxmlLoader.load();
+
+        Scene scene = new Scene(root);
+        this.chatStage.setTitle("Java FX Application");
+        this.chatStage.setScene(scene);
+
+        ClientController controller = fxmlLoader.getController();
+        controller.userList.getItems().addAll("user1", "user2");
+
+        primaryStage.show();
+
+        return controller;
+    }
+
 
     private void connectToServer(ClientController clientController) {
         boolean resultConnectedToServer = Network.getINSTANCE().connect();
         if (!resultConnectedToServer) {
-            String errorMessage = "Connection failed";
-            showErrorDialog(errorMessage);
+            String errorMessage = "Невозможно установить сетевое соединение";
             System.err.println(errorMessage);
+            showErrorDialog(errorMessage);
         }
 
-        //       clientController.setNetwork(network);
         clientController.setApplication(this);
-        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+
+        chatStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent windowEvent) {
-                    Network.getINSTANCE().close();
-                }
+                Network.getINSTANCE().close();
+            }
         });
     }
 
     public void showErrorDialog(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
+        alert.setTitle("Ошибка");
         alert.setContentText(message);
         alert.showAndWait();
 
@@ -90,5 +100,9 @@ public class ClientChat extends Application {
 
     public Stage getAuthStage() {
         return authStage;
+    }
+
+    public Stage getChatStage() {
+        return chatStage;
     }
 }

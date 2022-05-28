@@ -51,7 +51,7 @@ public class ClientHandler {
                 String username = this.server.getAuthService().getUserNameByLoginAndPassword(login, password);
 
                 if (username == null) {
-                    sendMessage("Incorrect login/password");
+                    sendMessage("Некорректные логин или пароль");
                 } else {
                     sendMessage(String.format("%s %s", AUTH_OK_COMMAND, username));
                     server.subscribe(this);

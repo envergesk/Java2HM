@@ -41,7 +41,7 @@ public class AuthController {
         try {
             Network.getINSTANCE().sendMessage(authCommandMessage);
         } catch (IOException e) {
-            clientChat.showErrorDialog("Data transfer error");
+            clientChat.showErrorDialog("Ошибка передачи данных по сети");
             e.printStackTrace();
         }
     }
@@ -59,6 +59,10 @@ public class AuthController {
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
+                            //clientChat.getAuthStage().close();
+                            String[] parts = message.split(" ");
+                            String userName = parts[1];
+                            clientChat.getChatStage().setTitle(userName);
                             clientChat.getAuthStage().close();
                         }
                     });
@@ -66,7 +70,7 @@ public class AuthController {
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
-                            clientChat.showErrorDialog("Current log/pass user not found");
+                            clientChat.showErrorDialog("Пользователя с таким логином и паролем не существует");
                         }
                     });
                 }

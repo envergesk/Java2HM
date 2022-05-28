@@ -41,7 +41,6 @@ public class Network {
             socketInput = new DataInputStream(socket.getInputStream());
             socketOutput = new DataOutputStream(socket.getOutputStream());
 
-
             return true;
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -53,7 +52,7 @@ public class Network {
         try {
             socketOutput.writeUTF(message);
         } catch (IOException e) {
-            System.err.println("Send message to server failed");
+            System.err.println("Не удалось отправить сообщение на сервер");
             e.printStackTrace();
             throw e;
         }
@@ -71,7 +70,7 @@ public class Network {
                         String message = socketInput.readUTF();
                         messageHandler.accept(message);
                     } catch (IOException e) {
-                        System.err.println("Receive message from server failed");
+                        System.err.println("Не удалось получить сообщение от сервера");
                         e.printStackTrace();
                         break;
                     }
@@ -86,7 +85,7 @@ public class Network {
         try {
             socket.close();
         } catch (IOException e) {
-            System.err.println("Socket close failed");
+            System.err.println("Не удалось закрыть сетевое соединение");
             e.printStackTrace();
         }
     }

@@ -29,14 +29,11 @@ public class MyServer {
     }
 
     private void waitAndProcessClientConnection(ServerSocket serverSocket) throws IOException {
-
         System.out.println("Waiting for new client connection");
         Socket clientSocket = serverSocket.accept();
         System.out.println("Client connected");
         ClientHandler clientHandler = new ClientHandler(this, clientSocket);
         clientHandler.handle();
-        this.clients.add(clientHandler);
-
     }
 
     public void broadcastMessage(String message, ClientHandler sender) throws IOException {

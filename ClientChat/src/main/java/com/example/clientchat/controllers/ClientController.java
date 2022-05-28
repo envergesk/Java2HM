@@ -42,27 +42,28 @@ public class ClientController {
         }
 
         try {
-            message = sender != null ? String.format(": ", sender, message) : message;
+            message = sender != null ? String.format(": ", sender, message) : message; // Server message
             Network.getINSTANCE().sendMessage(message);
         } catch (IOException e) {
-            application.showErrorDialog("Data error");
+            application.showErrorDialog("Ошибка передачи данных по сети");
         }
-        appendMessageToChat("Me", message);
+        appendMessageToChat("Я", message);
 
     }
 
     public void appendMessageToChat(String sender, String message) {
-        chatTextArea.appendText(DateFormat.getInstance().format(new Date()) + " ");
+        chatTextArea.appendText(DateFormat.getInstance().format(new Date()));
         chatTextArea.appendText(System.lineSeparator());
-        messageTextArea.requestFocus();
+
         if (sender != null) {
-            chatTextArea.appendText(sender + ": ");
+            chatTextArea.appendText(sender + ":");
             chatTextArea.appendText(System.lineSeparator());
         }
         chatTextArea.appendText(message);
         chatTextArea.appendText(System.lineSeparator());
-        messageTextArea.clear();
+        chatTextArea.appendText(System.lineSeparator());
         messageTextArea.requestFocus();
+        messageTextArea.clear();
     }
 
     public void initializeMessageHandler() {
